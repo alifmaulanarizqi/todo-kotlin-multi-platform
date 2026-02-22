@@ -25,10 +25,17 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import org.alifmaulanarizqi.todokmp.domain.Priority
+import org.alifmaulanarizqi.todokmp.presentation.component.PriorityChip
+import org.alifmaulanarizqi.todokmp.presentation.component.PriorityChipSize
 import org.alifmaulanarizqi.todokmp.util.Alpha
 import org.alifmaulanarizqi.todokmp.util.Resource
 import org.jetbrains.compose.resources.painterResource
@@ -39,6 +46,8 @@ fun TaskScreen(
     taskId: String?,
     navigateToBack: () -> Unit,
 ) {
+    var selectedPriority by remember { mutableStateOf(Priority.Low) }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -85,6 +94,13 @@ fun TaskScreen(
                     isRequired = false,
                     maxLine = 6,
                     minLine = 3
+                )
+
+                PrioritySection(
+                    selectedPriority = selectedPriority,
+                    onPrioritySelected = {
+                        selectedPriority = it
+                    }
                 )
             }
             Box(
@@ -151,5 +167,34 @@ fun TaskInputSection(
             minLines = minLine,
             maxLines = maxLine
         )
+    }
+}
+
+@Composable
+fun PrioritySection(
+    selectedPriority: Priority,
+    onPrioritySelected: (Priority) -> Unit
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text(
+            text = "priority",
+            style = MaterialTheme.typography.titleMedium
+        )
+
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Priority.entries.forEach { priority ->
+                if(priority != Priority.None)
+                    PriorityChip(
+                        priority = priority,
+                        size = PriorityChipSize.Large,
+                        isSelected = priority == selectedPriority,
+                        onSelect = onPrioritySelected
+                    )
+            }
+        }
     }
 }
