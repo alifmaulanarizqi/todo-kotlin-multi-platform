@@ -93,6 +93,12 @@ fun HomeScreen(
                                 task = it,
                                 onCLick = { taskId ->
                                     navigateToTaskScreen(taskId)
+                                },
+                                onDelete = {
+                                    println("task swipe deleted")
+                                },
+                                onComplete = {
+                                    println("task swipe completed")
                                 }
                             )
                         }
