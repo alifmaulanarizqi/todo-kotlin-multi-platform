@@ -22,23 +22,27 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 import org.alifmaulanarizqi.todokmp.domain.Priority
 import org.alifmaulanarizqi.todokmp.presentation.component.PriorityChip
 import org.alifmaulanarizqi.todokmp.presentation.component.PriorityChipSize
 import org.alifmaulanarizqi.todokmp.util.Alpha
 import org.alifmaulanarizqi.todokmp.util.Resource
 import org.jetbrains.compose.resources.painterResource
+import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,9 +50,19 @@ fun TaskScreen(
     taskId: String?,
     navigateToBack: () -> Unit,
 ) {
-    var selectedPriority by remember { mutableStateOf(Priority.Low) }
+    val viewModel = koinViewModel<TaskViewModel>()
+    val uiState by viewModel.uiState
+    val snackBarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit) {
+        viewModel.loadData(taskId)
+    }
 
     Scaffold(
+        snackbarHost = {
+            SnackbarHost(snackBarHostState)
+        },
         topBar = {
             TopAppBar(
                 title = { Text(text = "Task") },
@@ -80,16 +94,16 @@ fun TaskScreen(
             ) {
                 TaskInputSection(
                     title = "Task Title",
-                    value = "",
-                    onValueChange = {},
+                    value = uiState.title,
+                    onValueChange = viewModel::updateTitle,
                     placeHolder = "Enter task title...",
                     isRequired = true
                 )
 
                 TaskInputSection(
                     title = "Task Description",
-                    value = "",
-                    onValueChange = {},
+                    value = uiState.description,
+                    onValueChange = viewModel::updateDescription,
                     placeHolder = "Enter task description...",
                     isRequired = false,
                     maxLine = 6,
@@ -97,10 +111,8 @@ fun TaskScreen(
                 )
 
                 PrioritySection(
-                    selectedPriority = selectedPriority,
-                    onPrioritySelected = {
-                        selectedPriority = it
-                    }
+                    selectedPriority = uiState.priority,
+                    onPrioritySelected = viewModel::updatePriority
                 )
             }
             Box(
@@ -110,7 +122,23 @@ fun TaskScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),
-                    onClick = {}
+                    onClick = {
+                        viewModel.saveTask(
+                            onSuccess = {
+                                scope.launch {
+                                    snackBarHostState.showSnackbar(
+                                        message = if(taskId != null) "Task updated"
+                                        else "Task created"
+                                    )
+                                }
+                            },
+                            onError = { message ->
+                                scope.launch {
+                                    snackBarHostState.showSnackbar(message)
+                                }
+                            }
+                        )
+                    }
                 ) {
                     Text(
                         text = if(taskId != null) "Update Task" else "Create Task",

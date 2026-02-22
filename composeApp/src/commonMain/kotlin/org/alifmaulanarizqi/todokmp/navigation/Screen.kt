@@ -9,6 +9,6 @@ sealed class Screen {
 
     @Serializable
     data class Task(
-        val id: String? = null,
+        val taskId: String? = null,
     ): Screen()
 }

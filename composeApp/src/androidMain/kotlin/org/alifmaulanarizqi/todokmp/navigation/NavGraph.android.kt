@@ -25,7 +25,7 @@ actual fun NavGraph() {
             }
             entry<Screen.Task> {
                 TaskScreen(
-                    taskId = it.id,
+                    taskId = it.taskId,
                     navigateToBack = {
                         navigator.goBack()
                     }

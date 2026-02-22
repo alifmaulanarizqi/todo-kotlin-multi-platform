@@ -4,6 +4,7 @@ import org.alifmaulanarizqi.todokmp.data.FakeToDoRepository
 import org.alifmaulanarizqi.todokmp.data.ToDoRepository
 import org.alifmaulanarizqi.todokmp.navigation.Navigator
 import org.alifmaulanarizqi.todokmp.presentation.screen.home.HomeViewModel
+import org.alifmaulanarizqi.todokmp.presentation.screen.task.TaskViewModel
 import org.koin.core.KoinApplication
 import org.koin.core.context.startKoin
 import org.koin.core.module.dsl.singleOf
@@ -14,6 +15,7 @@ val koinModule = module {
     singleOf(constructor = ::Navigator)
     single<ToDoRepository> { FakeToDoRepository() }
     viewModelOf(::HomeViewModel)
+    viewModelOf(::TaskViewModel)
 }
 
 fun initializeKoin(
