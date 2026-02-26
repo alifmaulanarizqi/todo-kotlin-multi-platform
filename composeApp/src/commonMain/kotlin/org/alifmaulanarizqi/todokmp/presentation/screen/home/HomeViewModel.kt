@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import org.alifmaulanarizqi.todokmp.data.ToDoRepository
+import org.alifmaulanarizqi.todokmp.domain.ToDoTask
 import org.alifmaulanarizqi.todokmp.util.RequestState
 
 class HomeViewModel(
@@ -16,4 +17,12 @@ class HomeViewModel(
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = RequestState.Loading
         )
+
+    fun markTestAsCompleted(task: ToDoTask): RequestState<Unit> {
+        return repository.updateTask(task)
+    }
+
+    fun removeTask(taskId: String): RequestState<Unit> {
+        return repository.removeTask(taskId)
+    }
 }

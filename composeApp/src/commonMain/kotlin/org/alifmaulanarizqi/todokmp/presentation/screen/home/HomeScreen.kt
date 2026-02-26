@@ -19,13 +19,18 @@ import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.launch
 import org.alifmaulanarizqi.todokmp.presentation.component.InfoCard
 import org.alifmaulanarizqi.todokmp.presentation.component.LoadingCard
 import org.alifmaulanarizqi.todokmp.presentation.component.TaskCard
@@ -41,8 +46,11 @@ fun HomeScreen(
 ) {
     val viewModel = koinViewModel<HomeViewModel>()
     val allTask by viewModel.tasks.collectAsStateWithLifecycle()
+    val snackBarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
     Scaffold(
+        snackbarHost = {SnackbarHost(snackBarHostState)},
         topBar = {
             TopAppBar(
                 title = { Text(text = "To Do") },
@@ -95,10 +103,33 @@ fun HomeScreen(
                                     navigateToTaskScreen(taskId)
                                 },
                                 onDelete = {
-                                    println("task swipe deleted")
+                                    val result = viewModel.removeTask(
+                                        taskId = it.id
+                                    )
+
+                                    if(result.isSuccess()) {
+                                        scope.launch {
+                                            snackBarHostState.showSnackbar(
+                                                message = "Task removed successfully"
+                                            )
+                                        }
+                                    }
                                 },
                                 onComplete = {
-                                    println("task swipe completed")
+                                    val isCompleted = !it.isCompleted
+
+                                    val result = viewModel.markTestAsCompleted(
+                                        task = it.copy(isCompleted = true)
+                                    )
+
+                                    if(result.isSuccess()) {
+                                        scope.launch {
+                                            snackBarHostState.showSnackbar(
+                                                message = if(isCompleted) "Task marked as completed"
+                                                else "Task marked as not completed"
+                                            )
+                                        }
+                                    }
                                 }
                             )
                         }
