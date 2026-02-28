@@ -206,29 +206,26 @@ fun TaskInputSection(
 }
 
 @Composable
-fun PrioritySection(
+private fun PrioritySection(
     selectedPriority: Priority,
-    onPrioritySelected: (Priority) -> Unit
+    onPrioritySelected: (Priority) -> Unit,
 ) {
-    Column(
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(
-            text = "priority",
+            text = "Priority",
             style = MaterialTheme.typography.titleMedium
         )
 
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Priority.entries.drop(1).forEach { priority ->
-                if(priority != Priority.None)
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Priority.entries.forEach { priority ->
+                if(priority != Priority.None) {
                     PriorityChip(
                         priority = priority,
                         size = PriorityChipSize.Large,
                         isSelected = priority == selectedPriority,
                         onSelect = onPrioritySelected
                     )
+                }
             }
         }
     }

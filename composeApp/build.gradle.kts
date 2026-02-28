@@ -7,7 +7,7 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.serialization)
-//    alias(libs.plugins.sqlDelight)
+    alias(libs.plugins.sqlDelight)
 }
 
 kotlin {
@@ -34,7 +34,7 @@ kotlin {
 
             implementation(libs.koin.android)
 
-//            implementation(libs.sqldelight.android)
+            implementation(libs.sqldelight.android)
 
             implementation(libs.navigation3.runtime)
             implementation(libs.navigation3.ui)
@@ -61,11 +61,11 @@ kotlin {
 
             implementation(libs.swipeable.kmp)
 
-//            implementation(libs.sqldelight.coroutines)
+            implementation(libs.sqldelight.coroutines)
         }
         iosMain.dependencies {
             implementation(libs.navigation2)
-//            implementation(libs.sqldelight.ios)
+            implementation(libs.sqldelight.ios)
         }
     }
 }
@@ -99,4 +99,12 @@ android {
 
 dependencies {
     debugImplementation(compose.uiTooling)
+}
+
+sqldelight {
+    databases {
+        create("TaskDatabase") {
+            packageName = "org.alifmaulanarizqi"
+        }
+    }
 }

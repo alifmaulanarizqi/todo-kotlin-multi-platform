@@ -21,7 +21,7 @@ class HomeViewModel(
     val prioritySort = _prioritySort
 
     val tasks = combine(
-        repository.readAllTasks(),
+        repository.readAllTasks(viewModelScope.coroutineContext),
         prioritySort,
         _searchQuery
     ) { tasks, priority, query ->
