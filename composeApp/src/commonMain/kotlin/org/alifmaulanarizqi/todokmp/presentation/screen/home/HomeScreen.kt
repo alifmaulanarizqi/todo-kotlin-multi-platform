@@ -264,7 +264,7 @@ fun HomeScreen(
                                     val isCompleted = !it.isCompleted
 
                                     val result = viewModel.markTestAsCompleted(
-                                        task = it.copy(isCompleted = true)
+                                        task = it.copy(isCompleted = isCompleted)
                                     )
 
                                     if(result.isSuccess()) {
