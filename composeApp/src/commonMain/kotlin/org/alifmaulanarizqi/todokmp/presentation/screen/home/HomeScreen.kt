@@ -6,16 +6,23 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
@@ -35,14 +42,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
+import org.alifmaulanarizqi.todokmp.domain.Priority
 import org.alifmaulanarizqi.todokmp.presentation.component.InfoCard
 import org.alifmaulanarizqi.todokmp.presentation.component.LoadingCard
+import org.alifmaulanarizqi.todokmp.presentation.component.PriorityColors.getColor
 import org.alifmaulanarizqi.todokmp.presentation.component.TaskCard
 import org.alifmaulanarizqi.todokmp.util.DisplayResult
 import org.alifmaulanarizqi.todokmp.util.Resource
@@ -59,8 +70,10 @@ fun HomeScreen(
     val snackBarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
+    val sortPriority by viewModel.prioritySort.collectAsStateWithLifecycle()
 
     var searchBarOpened by remember { mutableStateOf(false) }
+    var dropDownMenuOpened by remember { mutableStateOf(false) }
 
     Scaffold(
         snackbarHost = {SnackbarHost(snackBarHostState)},
@@ -73,7 +86,7 @@ fun HomeScreen(
                         if(isOpened) {
                             TextField(
                                 modifier = Modifier.height(56.dp),
-                                value = searchQuery ?: "",
+                                value = searchQuery,
                                 onValueChange = viewModel::updateSearchQuery,
                                 placeholder = {
                                     Text(text = "Search...")
@@ -111,6 +124,7 @@ fun HomeScreen(
                             IconButton(
                                 onClick = {
                                     searchBarOpened = false
+                                    viewModel.updateSearchQuery("")
                                 }
                             ) {
                                 Icon(
@@ -119,15 +133,78 @@ fun HomeScreen(
                                 )
                             }
                         } else {
-                            IconButton(
-                                onClick = {
-                                    searchBarOpened = true
+                            Row {
+                                Box {
+                                    Box(
+                                        contentAlignment = Alignment.TopEnd
+                                    ) {
+                                        IconButton(
+                                            onClick = {
+                                                dropDownMenuOpened = true
+                                            }
+                                        ) {
+                                            Icon(
+                                                painter = painterResource(Resource.Icon.SORT),
+                                                contentDescription = "sort icon"
+                                            )
+                                        }
+                                        if(sortPriority != Priority.None) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(8.dp)
+                                                    .offset(x = -6.dp, y = 6.dp)
+                                                    .clip(CircleShape)
+                                                    .background(MaterialTheme.colorScheme.error)
+                                            )
+                                        }
+                                    }
+
+                                    DropdownMenu(
+                                        expanded = dropDownMenuOpened,
+                                        shape = RoundedCornerShape(size = 12.dp),
+                                        onDismissRequest = {
+                                            dropDownMenuOpened = false
+                                        },
+                                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                                    ) {
+                                        Priority.entries.forEach { priority ->
+                                            DropdownMenuItem(
+                                                modifier = Modifier
+                                                    .background(
+                                                        if(sortPriority == priority && priority != Priority.None) MaterialTheme.colorScheme.outlineVariant
+                                                        else MaterialTheme.colorScheme.surfaceVariant
+                                                    ),
+                                                text = {
+                                                    Text(
+                                                        text = priority.name
+                                                    )
+                                                },
+                                                leadingIcon = {
+                                                    Box(
+                                                        modifier = Modifier
+                                                            .size(16.dp)
+                                                            .clip(CircleShape)
+                                                            .background(priority.getColor())
+                                                    )
+                                                },
+                                                onClick = {
+                                                    viewModel.updatePriorityFilter(priority)
+                                                    dropDownMenuOpened = false
+                                                }
+                                            )
+                                        }
+                                    }
                                 }
-                            ) {
-                                Icon(
-                                    painter = painterResource(Resource.Icon.SEARCH),
-                                    contentDescription = "search icon"
-                                )
+                                IconButton(
+                                    onClick = {
+                                        searchBarOpened = true
+                                    }
+                                ) {
+                                    Icon(
+                                        painter = painterResource(Resource.Icon.SEARCH),
+                                        contentDescription = "search icon"
+                                    )
+                                }
                             }
                         }
                     }

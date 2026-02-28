@@ -7,28 +7,38 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import org.alifmaulanarizqi.todokmp.data.ToDoRepository
+import org.alifmaulanarizqi.todokmp.domain.Priority
 import org.alifmaulanarizqi.todokmp.domain.ToDoTask
 import org.alifmaulanarizqi.todokmp.util.RequestState
 
 class HomeViewModel(
     private val repository: ToDoRepository
 ): ViewModel() {
-    private var _searchQuery = MutableStateFlow<String?>(null)
+    private var _searchQuery = MutableStateFlow<String>("")
     val searchQuery = _searchQuery
+
+    private var _prioritySort = MutableStateFlow(Priority.None)
+    val prioritySort = _prioritySort
 
     val tasks = combine(
         repository.readAllTasks(),
+        prioritySort,
         _searchQuery
-    ) { tasks, query ->
+    ) { tasks, priority, query ->
         when(tasks) {
             is RequestState.Success -> {
-                val filteredTasks = tasks.data.let { list ->
-                    query?.let {
+                val filteredTasks = tasks.data
+                    .let { list ->
+                        if(priority == Priority.None) list
+                        else list.filter { it.priority == priority }
+                    }
+                    .let { list ->
+                    query.let {
                         if(query.isBlank()) list
                         else list.filter { task ->
                             task.title.contains(query, ignoreCase = true)
                         }
-                    } ?: list
+                    }
                 }.sortedByDescending { it.priority.ordinal }
 
                 RequestState.Success(filteredTasks)
@@ -51,5 +61,9 @@ class HomeViewModel(
 
     fun updateSearchQuery(value: String) {
         _searchQuery.value = value
+    }
+
+    fun updatePriorityFilter(value: Priority) {
+        _prioritySort.value = value
     }
 }
