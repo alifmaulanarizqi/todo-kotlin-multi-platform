@@ -10,6 +10,16 @@ class Navigator {
         backStack.add(screen)
     }
 
+    fun navigateToTask(taskId: String? = null) {
+        if(backStack.lastOrNull() is Screen.Task) {
+            backStack[backStack.lastIndex] = Screen.Task(
+                taskId = taskId
+            )
+        } else {
+            backStack.add(Screen.Task(taskId))
+        }
+    }
+
     fun goBack() {
         backStack.removeLastOrNull()
     }
