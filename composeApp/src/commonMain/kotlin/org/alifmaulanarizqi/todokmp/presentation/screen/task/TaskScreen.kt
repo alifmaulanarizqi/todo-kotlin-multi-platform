@@ -221,7 +221,7 @@ fun PrioritySection(
         Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Priority.entries.forEach { priority ->
+            Priority.entries.drop(1).forEach { priority ->
                 if(priority != Priority.None)
                     PriorityChip(
                         priority = priority,

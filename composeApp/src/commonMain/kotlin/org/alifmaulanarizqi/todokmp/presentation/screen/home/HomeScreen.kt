@@ -176,7 +176,7 @@ fun HomeScreen(
                                                     ),
                                                 text = {
                                                     Text(
-                                                        text = priority.name
+                                                        text = if(priority.name == Priority.None.name) "All" else priority.name
                                                     )
                                                 },
                                                 leadingIcon = {
