@@ -145,6 +145,7 @@ fun TaskScreen(
                                 }
                             }
                         )
+                        navigateToBack()
                     }
                 ) {
                     Text(
